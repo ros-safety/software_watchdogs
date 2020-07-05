@@ -14,10 +14,12 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(sw_watchdog_msgs
   "msg/DummyMessage.msg"
+  "msg/Heartbeat.msg"
   DEPENDENCIES std_msgs
   LIBRARY_NAME ${PROJECT_NAME}
 )
@@ -65,14 +67,36 @@ install(TARGETS
   lifecycle_service_client
   DESTINATION lib/${PROJECT_NAME})
 
+add_library(${PROJECT_NAME} SHARED
+  src/simple_heartbeat.cpp
+  src/simple_watchdog.cpp
+  src/windowed_watchdog.cpp)
+ament_target_dependencies(${PROJECT_NAME}
+  "rclcpp"
+  "rclcpp_components"
+  "rcutils"
+)
+target_compile_definitions(${PROJECT_NAME}
+  PRIVATE "SW_WATCHDOG_BUILDING_DLL")
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "quality_of_service_demo::MessageLostListener"
+  EXECUTABLE simple_heartbeat)
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "quality_of_service_demo::MessageLostListener"
+  EXECUTABLE simple_watchdog)
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "quality_of_service_demo::MessageLostTalker"
+  EXECUTABLE windowed_watchdog)
+
+install(TARGETS
+  ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 
   find_package(ros_testing REQUIRED)
@@ -86,6 +110,7 @@ endif()
 rosidl_target_interfaces(talker sw_watchdog_msgs "rosidl_typesupport_cpp")
 rosidl_target_interfaces(lifecycle_talker sw_watchdog_msgs "rosidl_typesupport_cpp")
 rosidl_target_interfaces(lifecycle_watchdog sw_watchdog_msgs "rosidl_typesupport_cpp")
+rosidl_target_interfaces(sw_watchdog sw_watchdog_msgs "rosidl_typesupport_cpp")
 
 install(DIRECTORY
   launch
