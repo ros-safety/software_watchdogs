@@ -73,19 +73,20 @@ add_library(${PROJECT_NAME} SHARED
   src/windowed_watchdog.cpp)
 ament_target_dependencies(${PROJECT_NAME}
   "rclcpp"
+  "rclcpp_lifecycle"
   "rclcpp_components"
   "rcutils"
 )
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE "SW_WATCHDOG_BUILDING_DLL")
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "quality_of_service_demo::MessageLostListener"
+  PLUGIN "sw_watchdog::SimpleHeartbeat"
   EXECUTABLE simple_heartbeat)
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "quality_of_service_demo::MessageLostListener"
+  PLUGIN "sw_watchdog::SimpleWatchdog"
   EXECUTABLE simple_watchdog)
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "quality_of_service_demo::MessageLostTalker"
+  PLUGIN "sw_watchdog::WindowedWatchdog"
   EXECUTABLE windowed_watchdog)
 
 install(TARGETS

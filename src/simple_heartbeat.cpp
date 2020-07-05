@@ -28,7 +28,7 @@
 
 using namespace std::chrono_literals;
 
-namespace sw_watchdog
+namespace
 {
 
 void print_usage()
@@ -38,9 +38,14 @@ void print_usage()
         "required arguments:\n"
         "\tperiod: Period in positive integer milliseconds of the heartbeat signal.\n"
         "optional arguments:\n"
-        "\t-h : Print this help message.\n" <<
+        "\t-h : Print this help message." <<
         std::endl;
 }
+
+} // anonymous ns
+
+namespace sw_watchdog
+{
 
 /**
  * A class that publishes heartbeats at a fixed frequency with the header set to current time.
@@ -49,7 +54,7 @@ class SimpleHeartbeat : public rclcpp::Node
 {
 public:
     SW_WATCHDOG_PUBLIC
-    explicit SimpleHeartbeat(const rclcpp::NodeOptions & options)
+    explicit SimpleHeartbeat(const rclcpp::NodeOptions& options)
         : Node("simple_heartbeat", options)
     {
         // Parse node arguments
@@ -59,7 +64,7 @@ public:
         for(size_t i = 0; i < args.size(); ++i)
             cargs.push_back(const_cast<char*>(args[i].c_str()));
 
-        if(args.size() < 1 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + args.size(), "-h")) {
+        if(args.size() < 1 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
             print_usage();
             // TODO: Update the rclcpp_components template to be able to handle
             // exceptions. Raise one here, so stack unwinding happens gracefully.
@@ -68,7 +73,7 @@ public:
 
         std::chrono::milliseconds heartbeat_period(std::stoul(args[1]));
 
-        publisher_ = this->create_publisher<sw_watchdog::msg::Heartbeat>("topic", 1); /* history */
+        publisher_ = this->create_publisher<sw_watchdog::msg::Heartbeat>("heartbeat", 1);
         timer_ = this->create_wall_timer(heartbeat_period,
                                          std::bind(&SimpleHeartbeat::timer_callback, this));
     }
