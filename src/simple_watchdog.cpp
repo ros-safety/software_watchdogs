@@ -62,8 +62,7 @@ public:
     SW_WATCHDOG_PUBLIC
     explicit SimpleWatchdog(const rclcpp::NodeOptions& options)
         : rclcpp_lifecycle::LifecycleNode("simple_watchdog", options),
-          autostart_(false), enable_pub_(false), topic_name_(DEFAULT_TOPIC_NAME), qos_profile_(10),
-          lease_misses_(0)
+          autostart_(false), enable_pub_(false), topic_name_(DEFAULT_TOPIC_NAME), qos_profile_(10)
     {
         // Parse node arguments
         const std::vector<std::string>& args = this->get_node_options().arguments();
@@ -89,12 +88,12 @@ public:
     }
 
     /// Publish lease expiry of the watched entity
-    void publish_status(uint16_t misses)
+    void publish_status()
     {
         auto msg = std::make_unique<sw_watchdog::msg::Status>();
         rclcpp::Time now = this->get_clock()->now();
         msg->stamp = now;
-        msg->missed_number = misses;
+        msg->missed_number = 1;
 
         // Print the current state for demo purposes
         if (!status_pub_->is_activated()) {
@@ -127,10 +126,8 @@ public:
                 printf("  not_alive_count: %d\n", event.not_alive_count);
                 printf("  alive_count_change: %d\n", event.alive_count_change);
                 printf("  not_alive_count_change: %d\n", event.not_alive_count_change);
-                lease_misses_.fetch_add(static_cast<uint16_t>(event.not_alive_count_change),
-                                        std::memory_order_relaxed);
                 if(event.alive_count == 0)
-                    publish_status(lease_misses_);
+                    publish_status();
             };
 
         if(enable_pub_)
@@ -150,7 +147,6 @@ public:
                 qos_profile_,
                 [this](const typename sw_watchdog::msg::Heartbeat::SharedPtr msg) -> void {
                     RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%f]", msg->stamp);
-                    lease_misses_ = 0;
                 },
                 heartbeat_sub_options_);
         }
@@ -215,7 +211,6 @@ private:
     const std::string topic_name_;
     rclcpp::QoS qos_profile_;
     rclcpp::SubscriptionOptions heartbeat_sub_options_;
-    std::atomic<uint16_t> lease_misses_;
 };
 
 } // namespace sw_watchdog
