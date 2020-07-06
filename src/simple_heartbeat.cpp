@@ -71,11 +71,12 @@ public:
         std::chrono::milliseconds heartbeat_period(std::stoul(args[1]));
 
         // The granted lease is essentially infite here, i.e., only reader/watchdog will notify
-        // violations. XXX causes segfault for cyclone dds, hence pass explicit lease life >= heartbeat.
+        // violations. XXX causes segfault for cyclone dds, hence pass explicit lease life > heartbeat.
         rclcpp::QoS qos_profile(1);
         qos_profile
             .liveliness(RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC)
-            .liveliness_lease_duration(heartbeat_period + LEASE_DELTA);
+            .liveliness_lease_duration(heartbeat_period + LEASE_DELTA)
+            .deadline(heartbeat_period + LEASE_DELTA);
 
         // assert liveliness on the 'heartbeat' topic
         publisher_ = this->create_publisher<sw_watchdog::msg::Heartbeat>("heartbeat", qos_profile);

@@ -30,7 +30,7 @@
 
 using namespace std::chrono_literals;
 
-constexpr char OPTION_AUTO_START[] = "--autostart";
+constexpr char OPTION_AUTO_START[] = "--activate";
 constexpr char OPTION_PUB_STATUS[] = "--publish";
 constexpr char DEFAULT_TOPIC_NAME[] = "heartbeat";
 
@@ -39,9 +39,10 @@ namespace {
 void print_usage()
 {
     std::cout <<
-        "Usage: windowed_watchdog lease [" << OPTION_AUTO_START << "] [-h]\n\n"
+        "Usage: windowed_watchdog lease max-misses [" << OPTION_AUTO_START << "] [-h]\n\n"
         "required arguments:\n"
         "\tlease: Lease in positive integer milliseconds granted to the watched entity.\n"
+        "\tmax-misses: The maximum number of lease violations granted to the watched entity.\n"
         "optional arguments:\n"
         "\t" << OPTION_AUTO_START << ": Start the watchdog on creation.  Defaults to false.\n"
         "\t" << OPTION_PUB_STATUS << ": Publish lease expiration of the watched entity.  "
@@ -58,6 +59,8 @@ namespace sw_watchdog
 /// WindowedWatchdog inheriting from rclcpp_lifecycle::LifecycleNode
 /**
  * Internally relies on the QoS deadline policy provided by the rmw implementation (e.g., DDS).
+ * The lease passed to this watchdog has to be > the period of the heartbeat signal to account
+ * for network transmission times.
  */
 class WindowedWatchdog : public rclcpp_lifecycle::LifecycleNode
 {
@@ -75,7 +78,7 @@ public:
         for(size_t i = 0; i < args.size(); ++i)
             cargs.push_back(const_cast<char*>(args[i].c_str()));
 
-        if(args.size() < 1 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
+        if(args.size() < 2 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
             print_usage();
             // TODO: Update the rclcpp_components template to be able to handle
             // exceptions. Raise one here, so stack unwinding happens gracefully.
@@ -84,11 +87,17 @@ public:
 
         // Lease duration must be >= heartbeat's lease duration
         lease_duration_ = std::chrono::milliseconds(std::stoul(args[1]));
+        max_misses_ = std::stoul(args[2]);
 
         if(rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), OPTION_AUTO_START))
             autostart_ = true;
         if(rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), OPTION_PUB_STATUS))
             enable_pub_ = true;
+
+        if(autostart_) {
+            configure();
+            activate();
+        }
     }
 
     /// Publish lease expiry of the watched entity
@@ -105,8 +114,8 @@ public:
                         "Lifecycle publisher is currently inactive. Messages are not published.");
         } else {
             RCLCPP_INFO(get_logger(),
-                        "Publishing lease expiry (missed count: [%u]) at [%f]",
-                        msg->missed_number, msg->stamp);
+                        "Publishing lease expiry (missed count: %u) at [%f]",
+                        msg->missed_number, now.seconds());
         }
 
         // Only if the publisher is in an active state, the message transfer is
@@ -119,22 +128,20 @@ public:
         const rclcpp_lifecycle::State &)
     {
         // Initialize and configure node
-        qos_profile_
-            .liveliness(RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC)
-            .liveliness_lease_duration(lease_duration_);
+        qos_profile_.deadline(lease_duration_);
 
-        heartbeat_sub_options_.event_callbacks.liveliness_callback =
-            [this](rclcpp::QOSLivelinessChangedInfo &event) {
-                printf("Reader Liveliness changed event: \n");
-                printf("  alive_count: %d\n", event.alive_count);
-                printf("  not_alive_count: %d\n", event.not_alive_count);
-                printf("  alive_count_change: %d\n", event.alive_count_change);
-                printf("  not_alive_count_change: %d\n", event.not_alive_count_change);
-                lease_misses_.fetch_add(static_cast<uint16_t>(event.not_alive_count_change),
+        heartbeat_sub_options_.event_callbacks.deadline_callback =
+            [this](rclcpp::QOSDeadlineRequestedInfo& event) -> void {
+                printf("Requested deadline missed - total %d delta %d\n",
+                   event.total_count, event.total_count_change);
+                lease_misses_.fetch_add(static_cast<uint16_t>(event.total_count_change),
                                         std::memory_order_relaxed);
-                if(event.alive_count == 0)
-                    publish_status(lease_misses_);
-            };
+
+                publish_status(lease_misses_);
+                // XXX Transition lifecycle to deactivated state
+                //if(lease_misses_ >= max_misses_)
+                //    deactivate();
+        };
 
         if(enable_pub_)
             status_pub_ = create_publisher<sw_watchdog::msg::Status>("status", 1); /* QoS history_depth */
@@ -152,7 +159,7 @@ public:
                 topic_name_,
                 qos_profile_,
                 [this](const typename sw_watchdog::msg::Heartbeat::SharedPtr msg) -> void {
-                    RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%f]", msg->stamp);
+                    RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%d.x]", msg->stamp.sec);
                     lease_misses_ = 0;
                 },
                 heartbeat_sub_options_);
@@ -221,6 +228,8 @@ private:
     const std::string topic_name_;
     /// The number of lease misses since the last heartbeat was received
     std::atomic<uint16_t> lease_misses_;
+    /// The maximum number of lease misses granted to the watched entity
+    uint16_t max_misses_;
     rclcpp::QoS qos_profile_;
     rclcpp::SubscriptionOptions heartbeat_sub_options_;
 };

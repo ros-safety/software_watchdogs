@@ -136,8 +136,11 @@ public:
                 printf("  not_alive_count: %d\n", event.not_alive_count);
                 printf("  alive_count_change: %d\n", event.alive_count_change);
                 printf("  not_alive_count_change: %d\n", event.not_alive_count_change);
-                if(event.alive_count == 0)
+                if(event.alive_count == 0) {
                     publish_status();
+                    // Transition lifecycle to deactivated state
+                    deactivate();
+                }
             };
 
         if(enable_pub_)
@@ -192,6 +195,7 @@ public:
     {
         status_pub_.reset();
         RCUTILS_LOG_INFO_NAMED(get_name(), "on cleanup is called.");
+
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
