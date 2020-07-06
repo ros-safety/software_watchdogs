@@ -56,14 +56,17 @@ namespace sw_watchdog
 {
 
 /// WindowedWatchdog inheriting from rclcpp_lifecycle::LifecycleNode
+/**
+ * Internally relies on the QoS deadline policy provided by the rmw implementation (e.g., DDS).
+ */
 class WindowedWatchdog : public rclcpp_lifecycle::LifecycleNode
 {
 public:
     SW_WATCHDOG_PUBLIC
     explicit WindowedWatchdog(const rclcpp::NodeOptions& options)
         : rclcpp_lifecycle::LifecycleNode("windowed_watchdog", options),
-          autostart_(false), enable_pub_(false), topic_name_(DEFAULT_TOPIC_NAME), qos_profile_(10),
-          lease_misses_(0)
+          autostart_(false), enable_pub_(false), topic_name_(DEFAULT_TOPIC_NAME),
+          lease_misses_(0), qos_profile_(10)
     {
         // Parse node arguments
         const std::vector<std::string>& args = this->get_node_options().arguments();
@@ -185,7 +188,7 @@ public:
         const rclcpp_lifecycle::State &)
     {
         status_pub_.reset();
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on cleanup is called (no-op).");
+        RCUTILS_LOG_INFO_NAMED(get_name(), "on cleanup is called.");
 
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
@@ -210,12 +213,16 @@ private:
     /// Publish lease expiry for the watched entity
     // By default, a lifecycle publisher is inactive by creation and has to be activated to publish.
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sw_watchdog::msg::Status>> status_pub_ = nullptr;
+    /// Whether to enable the watchdog on startup. Otherwise, lifecycle transitions have to be raised.
     bool autostart_;
+    /// Whether a lease expiry should be published
     bool enable_pub_;
+    /// Topic name for heartbeat signal by the watched entity
     const std::string topic_name_;
+    /// The number of lease misses since the last heartbeat was received
+    std::atomic<uint16_t> lease_misses_;
     rclcpp::QoS qos_profile_;
     rclcpp::SubscriptionOptions heartbeat_sub_options_;
-    std::atomic<uint16_t> lease_misses_;
 };
 
 } // namespace sw_watchdog

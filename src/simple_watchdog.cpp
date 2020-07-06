@@ -30,7 +30,7 @@
 
 using namespace std::chrono_literals;
 
-constexpr char OPTION_AUTO_START[] = "--autostart";
+constexpr char OPTION_AUTO_START[] = "--activate";
 constexpr char OPTION_PUB_STATUS[] = "--publish";
 constexpr char DEFAULT_TOPIC_NAME[] = "heartbeat";
 
@@ -56,6 +56,11 @@ namespace sw_watchdog
 {
 
 /// SimpleWatchdog inheriting from rclcpp_lifecycle::LifecycleNode
+/**
+ * Internally relies on the QoS liveliness policy provided by rmw implementation (e.g., DDS).
+ * The lease passed to this watchdog has to be > the period of the heartbeat signal to account
+ * for network transmission times.
+ */
 class SimpleWatchdog : public rclcpp_lifecycle::LifecycleNode
 {
 public:
@@ -85,6 +90,11 @@ public:
             autostart_ = true;
         if(rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), OPTION_PUB_STATUS))
             enable_pub_ = true;
+
+        if(autostart_) {
+            configure();
+            activate();
+        }
     }
 
     /// Publish lease expiry of the watched entity
@@ -101,8 +111,8 @@ public:
                         "Lifecycle publisher is currently inactive. Messages are not published.");
         } else {
             RCLCPP_INFO(get_logger(),
-                        "Publishing lease expiry (missed count: [%u]) at [%f]",
-                        msg->missed_number, msg->stamp);
+                        "Publishing lease expiry (missed count: %u) at [%f]",
+                        msg->missed_number, now.seconds());
         }
 
         // Only if the publisher is in an active state, the message transfer is
@@ -146,7 +156,7 @@ public:
                 topic_name_,
                 qos_profile_,
                 [this](const typename sw_watchdog::msg::Heartbeat::SharedPtr msg) -> void {
-                    RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%f]", msg->stamp);
+                    RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%d.x]", msg->stamp.sec);
                 },
                 heartbeat_sub_options_);
         }
@@ -181,8 +191,7 @@ public:
         const rclcpp_lifecycle::State &)
     {
         status_pub_.reset();
-        RCUTILS_LOG_INFO_NAMED(get_name(), "on cleanup is called (no-op).");
-
+        RCUTILS_LOG_INFO_NAMED(get_name(), "on cleanup is called.");
         return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
     }
 
@@ -206,8 +215,11 @@ private:
     /// Publish lease expiry for the watched entity
     // By default, a lifecycle publisher is inactive by creation and has to be activated to publish.
     std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sw_watchdog::msg::Status>> status_pub_ = nullptr;
+    /// Whether to enable the watchdog on startup. Otherwise, lifecycle transitions have to be raised.
     bool autostart_;
+    /// Whether a lease expiry should be published
     bool enable_pub_;
+    /// Topic name for heartbeat signal by the watched entity
     const std::string topic_name_;
     rclcpp::QoS qos_profile_;
     rclcpp::SubscriptionOptions heartbeat_sub_options_;
