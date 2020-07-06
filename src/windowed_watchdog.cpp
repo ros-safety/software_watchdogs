@@ -39,14 +39,14 @@ namespace {
 void print_usage()
 {
     std::cout <<
-        "Usage: simple_watchdog lease [" << OPTION_AUTO_START << "] [-h]\n\n"
-                                                                 "required arguments:\n"
-                                                                 "\tlease: Lease in positive integer milliseconds granted to the watched entity.\n"
-                                                                 "optional arguments:\n"
-                                                                 "\t" << OPTION_AUTO_START << ": Start the watchdog on creation.  Defaults to false.\n"
-                                      "\t" << OPTION_PUB_STATUS << ": Publish lease expiration of the watched entity.  "
-                                      "Defaults to false.\n"
-                                      "\t-h : Print this help message." <<
+        "Usage: windowed_watchdog lease [" << OPTION_AUTO_START << "] [-h]\n\n"
+        "required arguments:\n"
+        "\tlease: Lease in positive integer milliseconds granted to the watched entity.\n"
+        "optional arguments:\n"
+        "\t" << OPTION_AUTO_START << ": Start the watchdog on creation.  Defaults to false.\n"
+        "\t" << OPTION_PUB_STATUS << ": Publish lease expiration of the watched entity.  "
+        "Defaults to false.\n"
+        "\t-h : Print this help message." <<
         std::endl;
 }
 
@@ -61,7 +61,7 @@ class WindowedWatchdog : public rclcpp_lifecycle::LifecycleNode
 public:
     SW_WATCHDOG_PUBLIC
     explicit WindowedWatchdog(const rclcpp::NodeOptions& options)
-        : rclcpp_lifecycle::LifecycleNode("simple_watchdog", options),
+        : rclcpp_lifecycle::LifecycleNode("windowed_watchdog", options),
           autostart_(false), enable_pub_(false), topic_name_(DEFAULT_TOPIC_NAME), qos_profile_(10),
           lease_misses_(0)
     {
