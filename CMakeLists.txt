@@ -20,6 +20,7 @@ find_package(std_msgs REQUIRED)
 rosidl_generate_interfaces(sw_watchdog_msgs
   "msg/DummyMessage.msg"
   "msg/Heartbeat.msg"
+  "msg/Status.msg"
   DEPENDENCIES std_msgs
   LIBRARY_NAME ${PROJECT_NAME}
 )

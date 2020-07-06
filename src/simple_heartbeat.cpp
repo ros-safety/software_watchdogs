@@ -13,18 +13,13 @@
 // limitations under the License.
 
 #include <chrono>
-#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/cmdline_parser.h"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "sw_watchdog/visibility_control.h"
-
 #include "sw_watchdog/msg/heartbeat.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include "sw_watchdog/visibility_control.h"
 
 using namespace std::chrono_literals;
 
