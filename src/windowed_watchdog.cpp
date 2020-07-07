@@ -128,7 +128,10 @@ public:
         const rclcpp_lifecycle::State &)
     {
         // Initialize and configure node
-        qos_profile_.deadline(lease_duration_);
+        qos_profile_
+            .liveliness(RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC)
+            .liveliness_lease_duration(lease_duration_ * (uint16_t) lease_misses_)
+            .deadline(lease_duration_);
 
         heartbeat_sub_options_.event_callbacks.deadline_callback =
             [this](rclcpp::QOSDeadlineRequestedInfo& event) -> void {
@@ -143,9 +146,8 @@ public:
                     deactivate();
         };
 
-        // Reader is intentionally configured with 'RMW_QOS_POLICY_LIVELINESS_AUTOMATIC' instead
-        // of 'MANUAL_BY_TOPIC' at a specific frequency. This is just to catch the case where a
-        // node disappears from the network (deadline QoS does not account for that)
+        // Catch the case where monitored entity disappears from the network entirely (deadline QoS
+        // does not account for that)
         heartbeat_sub_options_.event_callbacks.liveliness_callback =
             [this](rclcpp::QOSLivelinessChangedInfo &event) -> void {
                 printf("Reader Liveliness changed event: \n");
