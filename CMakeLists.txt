@@ -16,6 +16,7 @@ find_package(lifecycle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(sw_watchdog_msgs
   "msg/DummyMessage.msg"
