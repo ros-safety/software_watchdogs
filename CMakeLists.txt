@@ -19,7 +19,6 @@ find_package(std_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(sw_watchdog_msgs
-  "msg/DummyMessage.msg"
   "msg/Heartbeat.msg"
   "msg/Status.msg"
   DEPENDENCIES std_msgs
@@ -34,41 +33,6 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS})
 
 ### nodes
-add_executable(lifecycle_talker
-  src/lifecycle_talker.cpp)
-target_link_libraries(lifecycle_talker
-  ${rclcpp_lifecycle_LIBRARIES}
-  ${std_msgs_LIBRARIES}
-)
-
-add_executable(talker
-  src/talker.cpp)
-target_link_libraries(talker
-  ${rclcpp_LIBRARIES}
-  ${std_msgs_LIBRARIES}
-)
-
-add_executable(lifecycle_watchdog
-  src/lifecycle_watchdog.cpp)
-target_link_libraries(lifecycle_watchdog
-  ${rclcpp_lifecycle_LIBRARIES}
-  ${std_msgs_LIBRARIES}
-)
-
-add_executable(lifecycle_service_client
-  src/lifecycle_service_client.cpp)
-target_link_libraries(lifecycle_service_client
-  ${rclcpp_lifecycle_LIBRARIES}
-  ${std_msgs_LIBRARIES}
-)
-
-install(TARGETS
-  talker
-  lifecycle_talker
-  lifecycle_watchdog
-  lifecycle_service_client
-  DESTINATION lib/${PROJECT_NAME})
-
 add_library(${PROJECT_NAME} SHARED
   src/simple_heartbeat.cpp
   src/simple_watchdog.cpp
@@ -109,10 +73,7 @@ if(BUILD_TESTING)
   )
 endif()
 
-# To enable use of dummy_message.hpp in executables
-rosidl_target_interfaces(talker sw_watchdog_msgs "rosidl_typesupport_cpp")
-rosidl_target_interfaces(lifecycle_talker sw_watchdog_msgs "rosidl_typesupport_cpp")
-rosidl_target_interfaces(lifecycle_watchdog sw_watchdog_msgs "rosidl_typesupport_cpp")
+# To enable use of heartbeat and status messages in library
 rosidl_target_interfaces(sw_watchdog sw_watchdog_msgs "rosidl_typesupport_cpp")
 
 install(DIRECTORY
