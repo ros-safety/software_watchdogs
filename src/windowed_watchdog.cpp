@@ -58,9 +58,9 @@ namespace sw_watchdog
 
 /// WindowedWatchdog inheriting from rclcpp_lifecycle::LifecycleNode
 /**
- * Internally relies on the QoS deadline policy provided by the rmw implementation (e.g., DDS).
- * The lease passed to this watchdog has to be > the period of the heartbeat signal to account
- * for network transmission times.
+ * Internally relies on the QoS deadline and liveliness policies provided by the rmw implementation
+ * (e.g., DDS). The lease passed to this watchdog has to be > the period of the heartbeat signal to
+ * account for network transmission times.
  */
 class WindowedWatchdog : public rclcpp_lifecycle::LifecycleNode
 {
@@ -138,10 +138,27 @@ public:
                                         std::memory_order_relaxed);
 
                 publish_status(lease_misses_);
-                // XXX Transition lifecycle to deactivated state
-                //if(lease_misses_ >= max_misses_)
-                //    deactivate();
+                // Transition lifecycle to deactivated state
+                if(lease_misses_ >= max_misses_)
+                    deactivate();
         };
+
+        // Reader is intentionally configured with 'RMW_QOS_POLICY_LIVELINESS_AUTOMATIC' instead
+        // of 'MANUAL_BY_TOPIC' at a specific frequency. This is just to catch the case where a
+        // node disappears from the network (deadline QoS does not account for that)
+        heartbeat_sub_options_.event_callbacks.liveliness_callback =
+            [this](rclcpp::QOSLivelinessChangedInfo &event) -> void {
+                printf("Reader Liveliness changed event: \n");
+                printf("  alive_count: %d\n", event.alive_count);
+                printf("  not_alive_count: %d\n", event.not_alive_count);
+                printf("  alive_count_change: %d\n", event.alive_count_change);
+                printf("  not_alive_count_change: %d\n", event.not_alive_count_change);
+                if(event.alive_count == 0) {
+                    publish_status(max_misses_);
+                    // Transition lifecycle to deactivated state
+                    deactivate();
+                }
+            };
 
         if(enable_pub_)
             status_pub_ = create_publisher<sw_watchdog::msg::Status>("status", 1); /* QoS history_depth */

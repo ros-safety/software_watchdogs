@@ -130,7 +130,7 @@ public:
             .liveliness_lease_duration(lease_duration_);
 
         heartbeat_sub_options_.event_callbacks.liveliness_callback =
-            [this](rclcpp::QOSLivelinessChangedInfo &event) {
+            [this](rclcpp::QOSLivelinessChangedInfo &event) -> void {
                 printf("Reader Liveliness changed event: \n");
                 printf("  alive_count: %d\n", event.alive_count);
                 printf("  not_alive_count: %d\n", event.not_alive_count);
