@@ -78,7 +78,7 @@ public:
         for(size_t i = 0; i < args.size(); ++i)
             cargs.push_back(const_cast<char*>(args[i].c_str()));
 
-        if(args.size() < 2 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
+        if(args.size() < 3 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
             print_usage();
             // TODO: Update the rclcpp_components template to be able to handle
             // exceptions. Raise one here, so stack unwinding happens gracefully.

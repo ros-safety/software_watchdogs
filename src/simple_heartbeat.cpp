@@ -31,7 +31,7 @@ namespace
 void print_usage()
 {
     std::cout <<
-        "Usage: simple_heartbeat period [-h]\n\n"
+        "Usage: simple_heartbeat [-h] --ros-args -p period:=value [...]\n\n"
         "required arguments:\n"
         "\tperiod: Period in positive integer milliseconds of the heartbeat signal.\n"
         "optional arguments:\n"
@@ -51,24 +51,30 @@ class SimpleHeartbeat : public rclcpp::Node
 {
 public:
     SW_WATCHDOG_PUBLIC
-    explicit SimpleHeartbeat(const rclcpp::NodeOptions& options)
-        : Node("simple_heartbeat", options)
+    explicit SimpleHeartbeat(rclcpp::NodeOptions options)
+        : Node("simple_heartbeat", options.start_parameter_event_publisher(false).
+                                           start_parameter_services(false))
     {
-        // Parse node arguments
-        const std::vector<std::string>& args = this->get_node_options().arguments();
-        std::vector<char *> cargs;
-        cargs.reserve(args.size());
-        for(size_t i = 0; i < args.size(); ++i)
-            cargs.push_back(const_cast<char*>(args[i].c_str()));
+        declare_parameter("period");
 
-        if(args.size() < 1 || rcutils_cli_option_exist(&cargs[0], &cargs[0] + cargs.size(), "-h")) {
+        const std::vector<std::string>& args = this->get_node_options().arguments();
+        // Parse node arguments
+        if(std::find(args.begin(), args.end(), "-h") != args.end()) {
             print_usage();
             // TODO: Update the rclcpp_components template to be able to handle
             // exceptions. Raise one here, so stack unwinding happens gracefully.
             std::exit(0);
         }
 
-        std::chrono::milliseconds heartbeat_period(std::stoul(args[1]));
+        std::chrono::milliseconds heartbeat_period;
+        try {
+            heartbeat_period = std::chrono::milliseconds(get_parameter("period").as_int());
+        } catch (...) {
+            print_usage();
+            // TODO: Update the rclcpp_components template to be able to handle
+            // exceptions. Raise one here, so stack unwinding happens gracefully.
+            std::exit(-1);
+        }
 
         // The granted lease is essentially infite here, i.e., only reader/watchdog will notify
         // violations. XXX causes segfault for cyclone dds, hence pass explicit lease life > heartbeat.
