@@ -3,8 +3,8 @@
 <package format="3">
   <name>sw_watchdog</name>
   <version>0.1.0</version>
-  <description>Package containing a SW watchdog implemented as a lifecycle node</description>
-  <maintainer email="robbel@gmail.com">Philipp Robbel</maintainer>
+  <description>Library of software watchdogs implemented as ROS 2 lifecycle nodes</description>
+  <maintainer email="philipp@mapless.ai">Philipp Robbel</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
