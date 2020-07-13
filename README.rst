@@ -1,4 +1,10 @@
-Introduction
-------------
+SW Watchdog
+-----------
 
-Example implementation of an (external) SW watchdog that monitors a particular process and topic. Based on the ROS2 ``lifecycle`` (`demos/lifecycle <https://github.com/ros2/demos/tree/master/lifecycle>`_) and ``quality_of_service_demo`` (`demos/quality_of_service_demo <https://github.com/ros2/demos/tree/master/quality_of_service_demo>`_) examples, Copyright 2019 Open Source Robotics Foundation, Inc.
+A set of (software) watchdogs based on DDS Quality of Service (QoS) policies and ROS2 lifecycle nodes.
+
+Package includes a heartbeat signal that can be added to an existing process to be monitored via ROS2 node composition.
+
+
+Usage
+-----
