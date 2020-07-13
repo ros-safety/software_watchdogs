@@ -62,16 +62,16 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
 
-  find_package(ros_testing REQUIRED)
-  add_ros_test(
-    test/test_watchdog.py
-    TIMEOUT 60
-  )
-endif()
+#   find_package(ros_testing REQUIRED)
+#   add_ros_test(
+#     test/test_watchdog.py
+#     TIMEOUT 60
+#   )
+# endif()
 
 # To enable use of heartbeat and status messages in library
 rosidl_target_interfaces(sw_watchdog sw_watchdog_msgs "rosidl_typesupport_cpp")
