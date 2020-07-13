@@ -13,12 +13,20 @@
 # limitations under the License.
 
 import launch
-import launch_ros
+from launch import LaunchDescription
+from launch.actions import EmitEvent
+from launch.actions import LogInfo
+from launch.actions import RegisterEventHandler
+from launch_ros.actions import Node
+from launch_ros.actions import LifecycleNode
+from launch_ros.events.lifecycle import ChangeState
+from launch_ros.event_handlers import OnStateTransition
+
 import lifecycle_msgs.msg
 
 def generate_launch_description():
     set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
-    watchdog_node = launch_ros.actions.LifecycleNode(
+    watchdog_node = LifecycleNode(
         package='sw_watchdog',
         node_executable='simple_watchdog',
         node_namespace='',
@@ -27,4 +35,15 @@ def generate_launch_description():
         arguments=['220', '--publish', '--activate']
         #arguments=['__log_level:=debug']
     )
-    return launch.LaunchDescription([set_tty_launch_config_action, watchdog_node])
+    # When the watchdog reaches the 'inactive' state, log a message
+    watchdog_inactive_handler = RegisterEventHandler(
+        OnStateTransition(
+            target_lifecycle_node = watchdog_node,
+            goal_state = 'inactive',
+            entities = [
+                # Log
+                LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
+            ],
+        )
+    )
+    return launch.LaunchDescription([set_tty_launch_config_action, watchdog_node, watchdog_inactive_handler])
