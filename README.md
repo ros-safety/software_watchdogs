@@ -65,4 +65,5 @@ The `Heartbeat` message defined in this package supports the notion of *checkpoi
 
 ## Contact
 
-For any questions or comments, please reach out to <philipp@mapless.ai>.
+For any questions or comments, please post a question at [ROS Answers](http://answers.ros.org/questions) following the [ROS support guidelines](http://wiki.ros.org/Support).
+[Add the `safety_wg` tag](https://answers.ros.org/questions/ask/?tags=safety_wg) to your question and someone from the Safety working group will spot it more easily.
