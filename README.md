@@ -2,7 +2,7 @@
 
 A library of (software) watchdogs based on DDS Quality of Service (QoS) policies and ROS 2 [lifecycle nodes](https://github.com/ros2/demos/blob/master/lifecycle/README.rst).
 
-Package includes a heartbeat node that can be added easily to an existing process via ROS 2 [node composition](https://index.ros.org/doc/ros2/Tutorials/Composition/).
+This package includes a heartbeat node that can be added easily to an existing process via ROS 2 [node composition](https://index.ros.org/doc/ros2/Tutorials/Composition/).
 
 ## Overview
 
@@ -16,7 +16,7 @@ This package includes two watchdog implementations (*"readers"*) and a heartbeat
 
 The launch files included in this package demonstrate both node composition with a heartbeat signal and the configuration of a corresponding watchdog.
 
-First confirm that `RMW_IMPLEMENTATION` is set in your shell to the desired `rmw` implementation (ROS 2 defaults to FastRTPS/DDS).
+If you wish to use an `rmw`implementation other than the default, set the `RMW_IMPLEMENTATION` environment variable appropriately in all shells that you are using ROS in.
 
 Then start the heartbeat and watchdog examples in separate terminals:
 ```
@@ -40,9 +40,11 @@ It is important that compatible *lease times* are configured for the Heartbeat s
 
 ## Requirements
 
-This package includes custom messages and thus requires `ros-*-rmw-cyclonedds-cpp` and `ros-*-rmw-connext-cpp` to be installed if these alternative `rmw`s are to be used. See [Install DDS implementations](https://index.ros.org/doc/ros2/Installation/DDS-Implementations/).
+This package includes custom messages.
+If you are compiling it from source and wish to use a non-default `rmw` implementation, you must have the appropriate `rmw` packages installed when you compile this package.
+See [Install DDS implementations](https://index.ros.org/doc/ros2/Installation/DDS-Implementations/) for more information on installing alternative `rmw` implementations.
 
-To use the `heartbeat_composition.launch.py` example, the `ros-*-demo-nodes-cpp` should be installed as well.
+To use the `heartbeat_composition.launch.py` example, the `ros-*-demo-nodes-cpp` must be installed.
 
 ## Compatibility
 
@@ -53,12 +55,12 @@ This code is built and tested under:
 * [ROS 2 Foxy Fitzroy](https://index.ros.org/doc/ros2/Installation/Foxy/) with [Ubuntu 20.04](http://releases.ubuntu.com/20.04/)
 
 The following DDS `rmw` [implementations](https://index.ros.org/doc/ros2/Concepts/DDS-and-ROS-middleware-implementations/) were tested in both environments (via the default Ubuntu packages that ship with the Dashing and Foxy releases):
-* [FastRTPS/DDS](https://www.eprosima.com/index.php/products-all/eprosima-fast-dds)  
-  _**Note:** Only supported in ROS 2 Foxy. The version of FastRTPS that ships in Dashing does not implement QoS._
-* [Connext DDS](https://www.rti.com/products/) v5.3.1  
-* [Cyclone DDS](https://projects.eclipse.org/projects/iot.cyclonedds)  
+* [Fast DDS](https://www.eprosima.com/index.php/products-all/eprosima-fast-dds)  
+  _**Note:** In Dashing you must use Fast DDS, rather than the default Fast RTPS (which is a prior version of Fast DDS). Fast RTPS does not implement QoS.
+* [Connext DDS](https://www.rti.com/products/) v5.3.1
+* [Cyclone DDS](https://projects.eclipse.org/projects/iot.cyclonedds)
   _**Note:** In order to be compatible with the `WindowedWatchdog`, the liveliness lease duration (not deadline) configured for the Heartbeat publisher has to account for the number of permitted violations on the watchdog (reader) side! E.g., if the watchdog is configured for a lease of *220ms* with *3* violations, the heartbeat should be set to a liveliness lease duration of (at least) *3 x 220ms* (requires a manual patch). Otherwise, the watchdog will declare the monitored node as failed immediately after the first lease violation._
-  
+
 ## TODO
 
 The `Heartbeat` message defined in this package supports the notion of *checkpoints*. Future watchdog versions could add support for control flow monitoring based on this information.
