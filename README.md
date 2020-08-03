@@ -56,7 +56,7 @@ This code is built and tested under:
 
 The following DDS `rmw` [implementations](https://index.ros.org/doc/ros2/Concepts/DDS-and-ROS-middleware-implementations/) were tested in both environments (via the default Ubuntu packages that ship with the Dashing and Foxy releases):
 * [Fast DDS](https://www.eprosima.com/index.php/products-all/eprosima-fast-dds)  
-  _**Note:** In Dashing you must use Fast DDS, rather than the default Fast RTPS (which is a prior version of Fast DDS). Fast RTPS does not implement QoS.
+  _**Note:** In Dashing you must use Fast DDS, rather than the default Fast RTPS (which is a prior version of Fast DDS). Fast RTPS does not implement QoS._
 * [Connext DDS](https://www.rti.com/products/) v5.3.1
 * [Cyclone DDS](https://projects.eclipse.org/projects/iot.cyclonedds)
   _**Note:** In order to be compatible with the `WindowedWatchdog`, the liveliness lease duration (not deadline) configured for the Heartbeat publisher has to account for the number of permitted violations on the watchdog (reader) side! E.g., if the watchdog is configured for a lease of *220ms* with *3* violations, the heartbeat should be set to a liveliness lease duration of (at least) *3 x 220ms* (requires a manual patch). Otherwise, the watchdog will declare the monitored node as failed immediately after the first lease violation._
