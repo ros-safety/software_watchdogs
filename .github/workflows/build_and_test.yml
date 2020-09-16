@@ -22,6 +22,7 @@ jobs:
       - name: ros-deps
         working-directory: watchdogs_ws
         run: |
+          sudo apt-get update
           rosdep update
           rosdep install --from-paths src --ignore-src --rosdistro foxy -yr
       - name: build
