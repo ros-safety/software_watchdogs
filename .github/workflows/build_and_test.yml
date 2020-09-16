@@ -20,13 +20,13 @@ jobs:
         with:
           path: watchdogs_ws/src/watchdogs
       - name: ros-deps
-        working-directory: ${{runner.workspace}}/watchdogs_ws
+        working-directory: watchdogs_ws
         run: |
           rosdep update
           rosdep install --from-paths src --ignore-src --rosdistro foxy -yr
       - name: build
         shell: bash
-        working-directory: ${{runner.workspace}}/watchdogs_ws
+        working-directory: watchdogs_ws
         run: |
           source /opt/ros/foxy/setup.bash
           colcon build --cmake-args -DCMAKE_BUILD_TYPE=RELEASE
