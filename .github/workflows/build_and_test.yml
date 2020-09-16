@@ -14,11 +14,11 @@ jobs:
       image: docker://ros:foxy-ros-base-focal
     steps:
       - name: Setup workspace
-        run: mkdir -p ${{runner.workspace}}/watchdogs_ws/src
+        run: mkdir -p watchdogs_ws/src
       - name: checkout
         uses: actions/checkout@v2
         with:
-          path: ${{runner.workspace}}/watchdogs_ws/src/software_watchdogs
+          path: watchdogs_ws/src/watchdogs
       - name: ros-deps
         working-directory: ${{runner.workspace}}/watchdogs_ws
         run: |
