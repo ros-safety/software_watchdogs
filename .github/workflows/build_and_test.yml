@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    container:
+      image: docker://ros:foxy-ros-base-focal
+    steps:
+      - name: Setup workspace
+        run: mkdir -p ${{runner.workspace}}/watchdogs_ws/src
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{runner.workspace}}/watchdogs_ws/src/software_watchdogs
+      - name: ros-deps
+        working-directory: ${{runner.workspace}}/watchdogs_ws
+        run: |
+          rosdep update
+          rosdep install --from-paths src --ignore-src --rosdistro foxy -yr
+      - name: build
+        shell: bash
+        working-directory: ${{runner.workspace}}/watchdogs_ws
+        run: |
+          source /opt/ros/foxy/setup.bash
+          colcon build --cmake-args -DCMAKE_BUILD_TYPE=RELEASE
+#      - name: Test
+#        working-directory: ${{runner.workspace}}/build
+#        shell: bash
+#        run: |
+#          colcon test
+#          colcon test-result --verbose
+#          colcon test-result --all
