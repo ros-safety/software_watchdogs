@@ -1,5 +1,7 @@
 # SW Watchdog
 
+![](https://github.com/ros-safety/software_watchdogs/workflows/CI/badge.svg)
+
 A library of (software) watchdogs based on DDS Quality of Service (QoS) policies and ROS 2 [lifecycle nodes](https://github.com/ros2/demos/blob/master/lifecycle/README.rst).
 
 This package includes a heartbeat node that can be added easily to an existing process via ROS 2 [node composition](https://index.ros.org/doc/ros2/Tutorials/Composition/).
