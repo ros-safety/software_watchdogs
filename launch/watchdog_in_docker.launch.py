@@ -106,9 +106,9 @@ def generate_launch_description():
     # Add the actions to the launch description.
     # The order they are added reflects the order in which they will be executed
     ld.add_action( set_tty_launch_config_action )
-    ld.add_action( docker_run_cmd )
+    #ld.add_action( docker_run_cmd )
     ld.add_action( watchdog_node )
     ld.add_action( watchdog_inactive_handler )
-    ld.add_action( shutdown_handler )
+    #ld.add_action( shutdown_handler )
 
     return ld
