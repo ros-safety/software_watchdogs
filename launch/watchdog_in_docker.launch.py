@@ -33,7 +33,7 @@ def generate_launch_description():
 
     # Start monitored entity once (via docker)
     docker_run_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'run', '-d', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
+        cmd=['docker', 'run', '-d', '--name', 'talker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
         #output='screen'
     )
 
@@ -81,10 +81,10 @@ def generate_launch_description():
             entities = [
                 # Log
                 LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
-                # Restart the monitored entity
-                docker_restart_cmd,
                 # Change state event (inactive -> active)
                 watchdog_activate_trans_event,
+                # Restart the monitored entity
+                docker_restart_cmd,
             ],
         )
     )
