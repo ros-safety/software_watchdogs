@@ -39,7 +39,7 @@ def generate_launch_description():
 
     # Restart monitored entity upon watchdog miss (via docker)
     docker_restart_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'start', 'talker']
+        cmd=['docker', 'restart', 'talker']
         #output='screen'
     )
 
@@ -81,10 +81,10 @@ def generate_launch_description():
             entities = [
                 # Log
                 LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
-                # Change state event (inactive -> active)
-                watchdog_activate_trans_event,
                 # Restart the monitored entity
                 docker_restart_cmd,
+                # Change state event (inactive -> active)
+                watchdog_activate_trans_event,
             ],
         )
     )
