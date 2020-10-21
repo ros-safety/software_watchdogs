@@ -31,23 +31,16 @@ def generate_launch_description():
     # Launch Description
     ld = launch.LaunchDescription()
 
-    # Start monitored entity once (via docker)
-    docker_run_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'run', '-d', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
-        #output='screen'
-    )
+    # Start monitored entity
+    docker_run_cmd = ['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py']
 
-    # Restart monitored entity upon watchdog miss (via docker)
-    docker_restart_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'restart', 'talker']
-        #output='screen'
-    )
+    # Stop docker container
+    docker_stop_cmd = ['docker', 'stop', 'talker']
 
-    # Remove docker container
-    docker_rm_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'rm', '-f', 'talker']
-        #output='screen'
-    )
+    # docker_run_cmd = launch.actions.ExecuteProcess(
+    #     cmd=['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
+    #     #output='screen'
+    # )
 
     # Shutdown event
     #shutdown_event = EmitEvent( event = launch.events.Shutdown() )
@@ -57,7 +50,7 @@ def generate_launch_description():
         package='sw_watchdog',
         node_executable='simple_watchdog',
         node_namespace='',
-        node_name='simple_watchdog',
+        node_name='simple_docker_watchdog',
         output='screen',
         arguments=['220', '--publish', '--activate']
         #arguments=['__log_level:=debug']
@@ -84,9 +77,8 @@ def generate_launch_description():
                 # Change state event (inactive -> active)
                 watchdog_activate_trans_event,
                 # Restart the monitored entity
-                # launch.actions.ExecuteProcess(
-                #     cmd=['docker', 'restart', 'talker']
-                # ),
+                launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
+                launch.actions.ExecuteProcess( cmd=docker_run_cmd ),
             ],
         )
     )
@@ -98,7 +90,7 @@ def generate_launch_description():
                 # Log
                 LogInfo( msg = "Launch was asked to shutdown." ),
                 # Clean up docker
-                docker_rm_cmd,
+                launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
             ],
         )
     )
@@ -106,9 +98,9 @@ def generate_launch_description():
     # Add the actions to the launch description.
     # The order they are added reflects the order in which they will be executed
     ld.add_action( set_tty_launch_config_action )
-    #ld.add_action( docker_run_cmd )
+    ld.add_action( launch.actions.ExecuteProcess( cmd=docker_run_cmd ))
     ld.add_action( watchdog_node )
     ld.add_action( watchdog_inactive_handler )
-    #ld.add_action( shutdown_handler )
+    ld.add_action( shutdown_handler )
 
     return ld
