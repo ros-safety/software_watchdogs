@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import subprocess
+
 import launch
 from launch import LaunchDescription
 from launch.actions import EmitEvent
@@ -94,7 +96,8 @@ def generate_launch_description():
                 # Log
                 LogInfo( msg = "Launch was asked to shutdown." ),
                 # Clean up docker
-                launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
+                #launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
+                subprocess.call( docker_stop_cmd ),
             ],
         )
     )
