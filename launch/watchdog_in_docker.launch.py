@@ -29,11 +29,11 @@ from launch.event_handlers.on_shutdown import OnShutdown
 import lifecycle_msgs.msg
 
 # Start monitored entity
-def docker_run():
+def docker_run(context, *args, **kwargs):
     subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
 
 # Stop docker container
-def docker_stop():
+def docker_stop(context, *args, **kwargs):
     subprocess.call(['docker', 'stop', 'talker'])
 
 
