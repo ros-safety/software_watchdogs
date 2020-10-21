@@ -77,8 +77,12 @@ def generate_launch_description():
                 # Change state event (inactive -> active)
                 watchdog_activate_trans_event,
                 # Restart the monitored entity
-                launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
-                launch.actions.ExecuteProcess( cmd=docker_run_cmd ),
+                # Wait for stop command to return before docker run command
+                launch.actions.ExecuteProcess( cmd=docker_stop_cmd,
+                                               on_exit=[
+                                                   launch.actions.ExecuteProcess( cmd=docker_run_cmd ),
+                                               ]
+                ),
             ],
         )
     )
