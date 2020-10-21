@@ -21,6 +21,7 @@ from launch_ros.actions import Node
 from launch_ros.actions import LifecycleNode
 from launch_ros.events.lifecycle import ChangeState
 from launch_ros.event_handlers import OnStateTransition
+from launch_ros.event_handlers import OnShutdown
 
 import lifecycle_msgs.msg
 
@@ -87,17 +88,14 @@ def generate_launch_description():
         )
     )
 
-    # When the Watchdog node reaches the 'finalized' state, clean up docker
-    watchdog_finalized_state_handler = RegisterEventHandler(
-        OnStateTransition(
-            target_lifecycle_node = watchdog_node,
-            goal_state = 'finalized',
-            entities = [
+    # When Shutdown is requested, clean up docker
+    shutdown_handler = RegisterEventHandler(
+        OnShutdown(
+            on_shutdown = [
                 # Log
-                LogInfo( msg = "Watchdog transitioned to 'FINALIZED' state." ),
+                LogInfo( msg = "Launch was asked to shutdown." ),
                 # Clean up docker
                 docker_rm_cmd,
-                #shutdown_event,
             ],
         )
     )
@@ -108,6 +106,6 @@ def generate_launch_description():
     ld.add_action( docker_run_cmd )
     ld.add_action( watchdog_node )
     ld.add_action( watchdog_inactive_handler )
-    ld.add_action( watchdog_finalized_state_handler )
+    ld.add_action( shutdown_handler )
 
     return ld
