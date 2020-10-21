@@ -45,7 +45,7 @@ def generate_launch_description():
 
     # Remove docker container
     docker_rm_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'rm', 'talker']
+        cmd=['docker', 'rm', '-f', 'talker']
         #output='screen'
     )
 
