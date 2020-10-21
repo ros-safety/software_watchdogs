@@ -19,6 +19,7 @@ from launch import LaunchDescription
 from launch.actions import EmitEvent
 from launch.actions import LogInfo
 from launch.actions import RegisterEventHandler
+from launch.actions import OpaqueFunction
 from launch_ros.actions import Node
 from launch_ros.actions import LifecycleNode
 from launch_ros.events.lifecycle import ChangeState
@@ -27,17 +28,20 @@ from launch.event_handlers.on_shutdown import OnShutdown
 
 import lifecycle_msgs.msg
 
+# Start monitored entity
+def docker_run():
+    subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
+
+# Stop docker container
+def docker_stop():
+    subprocess.call(['docker', 'stop', 'talker'])
+
+
 def generate_launch_description():
     set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
 
     # Launch Description
     ld = launch.LaunchDescription()
-
-    # Start monitored entity
-    docker_run_cmd = ['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py']
-
-    # Stop docker container
-    docker_stop_cmd = ['docker', 'stop', 'talker']
 
     # docker_run_cmd = launch.actions.ExecuteProcess(
     #     cmd=['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
@@ -80,11 +84,8 @@ def generate_launch_description():
                 watchdog_activate_trans_event,
                 # Restart the monitored entity
                 # Wait for stop command to return before docker run command
-                launch.actions.ExecuteProcess( cmd=docker_stop_cmd,
-                                               on_exit=[
-                                                   launch.actions.ExecuteProcess( cmd=docker_run_cmd ),
-                                               ]
-                ),
+                OpaqueFunction(function=docker_stop),
+                OpaqueFunction(function=docker_run),
             ],
         )
     )
@@ -96,8 +97,7 @@ def generate_launch_description():
                 # Log
                 LogInfo( msg = "Launch was asked to shutdown." ),
                 # Clean up docker
-                #launch.actions.ExecuteProcess( cmd=docker_stop_cmd ),
-                subprocess.call( docker_stop_cmd ),
+                OpaqueFunction(function=docker_stop),
             ],
         )
     )
@@ -105,7 +105,7 @@ def generate_launch_description():
     # Add the actions to the launch description.
     # The order they are added reflects the order in which they will be executed
     ld.add_action( set_tty_launch_config_action )
-    ld.add_action( launch.actions.ExecuteProcess( cmd=docker_run_cmd ))
+    ld.add_action( OpaqueFunction(function=docker_run) )
     ld.add_action( watchdog_node )
     ld.add_action( watchdog_inactive_handler )
     ld.add_action( shutdown_handler )
