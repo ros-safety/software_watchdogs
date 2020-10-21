@@ -39,7 +39,7 @@ def generate_launch_description():
 
     # Restart monitored entity upon watchdog miss (via docker)
     docker_restart_cmd = launch.actions.ExecuteProcess(
-        cmd=['docker', 'restart', 'talker']
+        cmd=['docker', 'start', 'talker']
         #output='screen'
     )
 
