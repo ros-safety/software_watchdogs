@@ -71,11 +71,12 @@ def generate_launch_description():
          )
     )
 
-    # When the watchdog reaches the 'inactive' state, log a message
+    # When the watchdog reaches the 'inactive' state from 'active', log message
     # and restart monitored entity (via docker)
     watchdog_inactive_handler = RegisterEventHandler(
         OnStateTransition(
             target_lifecycle_node = watchdog_node,
+            start_state = 'deactivating',
             goal_state = 'inactive',
             entities = [
                 # Log
