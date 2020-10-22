@@ -31,7 +31,7 @@ import lifecycle_msgs.msg
 
 # Start monitored entity
 def docker_run(context, *args, **kwargs):
-    subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
+    subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
 
 # Stop docker container
 def docker_stop(context, *args, **kwargs):
@@ -40,7 +40,6 @@ def docker_stop(context, *args, **kwargs):
 # Restart docker container
 def docker_restart(context, *args, **kwargs):
     docker_stop(None)
-    time.sleep(1)
     docker_run(None)
 
 
