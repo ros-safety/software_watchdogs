@@ -162,7 +162,7 @@ public:
                     RCLCPP_INFO(get_logger(), "Watchdog raised, heartbeat sent at [%d.x]", msg->stamp.sec);
                 },
                 heartbeat_sub_options_);
-            RCLCPP_INFO(get_logger(), "New sub: %s", heartbeat_sub_->get_name());
+            RCLCPP_INFO(get_logger(), "New sub: %s", heartbeat_sub_->get_topic_name());
         }
 
         // Starting from this point, all messages are sent to the network.
