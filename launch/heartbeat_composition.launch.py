@@ -27,7 +27,7 @@ from launch.event_handlers.on_shutdown import OnShutdown
 
 # Stop all group processes
 def group_stop(context, *args, **kwargs):
-    subprocess.call(['kill', '--INT', '-1'])
+    subprocess.call(['kill', '-INT', '--', '-1'])
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
