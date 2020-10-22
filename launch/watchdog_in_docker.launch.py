@@ -36,6 +36,10 @@ def docker_run(context, *args, **kwargs):
 def docker_stop(context, *args, **kwargs):
     subprocess.call(['docker', 'stop', 'talker'])
 
+# Restart docker container
+def docker_restart(context, *args, **kwargs):
+    docker_stop(None)
+    docker_run(None)
 
 def generate_launch_description():
     set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
@@ -83,9 +87,7 @@ def generate_launch_description():
                 # Change state event (inactive -> active)
                 watchdog_activate_trans_event,
                 # Restart the monitored entity
-                # Wait for stop command to return before docker run command
-                OpaqueFunction(function=docker_stop),
-                OpaqueFunction(function=docker_run),
+                OpaqueFunction(function=docker_restart),
             ],
         )
     )
