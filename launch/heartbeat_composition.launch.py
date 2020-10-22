@@ -38,7 +38,8 @@ def generate_launch_description():
                     parameters=[{'period': 200}],
                     extra_arguments=[{'use_intra_process_comms': True}]),
             ],
-            output='screen'
+            output='screen',
+            on_exit=launch.actions.Shutdown()
     )
 
     return launch.LaunchDescription([container])
