@@ -36,6 +36,7 @@ def generate_launch_description():
                     node_plugin='sw_watchdog::SimpleHeartbeat',
                     node_name='heartbeat',
                     parameters=[{'period': 200}]),
+                    extra_arguments=[{'use_intra_process_comms': True}]),
             ],
             output='screen',
     )
