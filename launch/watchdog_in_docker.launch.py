@@ -35,11 +35,13 @@ def docker_run(context, *args, **kwargs):
 
 # Stop docker container
 def docker_stop(context, *args, **kwargs):
-    subprocess.call(['docker', 'stop', 'talker'])
+    subprocess.call(['docker', 'kill', '--signal=SIGINT', 'talker'])
+    #subprocess.call(['docker', 'stop', 'talker'])
 
 # Restart docker container
 def docker_restart(context, *args, **kwargs):
     docker_stop(None)
+    time.wait(1)
     docker_run(None)
 
 
@@ -94,7 +96,7 @@ def generate_launch_description():
         OnShutdown(
             on_shutdown = [
                 # Log
-                LogInfo( msg = "Launch was asked to shutdown." ),
+                LogInfo( msg = "watchdog_in_docker was asked to shutdown." ),
                 # Clean up docker
                 OpaqueFunction(function=docker_stop),
             ],

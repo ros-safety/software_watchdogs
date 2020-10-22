@@ -15,8 +15,12 @@
 """Launch a talker and a heartbeat in a component container."""
 
 import launch
+from launch.actions import EmitEvent
+from launch.actions import LogInfo
+from launch.actions import RegisterEventHandler
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from launch.event_handlers.on_shutdown import OnShutdown
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
@@ -41,4 +45,20 @@ def generate_launch_description():
             output='screen'
     )
 
-    return launch.LaunchDescription([container])
+    # Shutdown event
+    shutdown_event = EmitEvent( event = launch.events.Shutdown() )
+
+    # When Shutdown is requested (launch), clean up all child processes
+    shutdown_handler = RegisterEventHandler(
+        OnShutdown(
+            on_shutdown = [
+                # Log
+                LogInfo( msg = "heartbeat_composition was asked to shutdown." ),
+                # Clean up
+                shutdown_event
+            ],
+        )
+    )
+
+
+    return launch.LaunchDescription([container, shutdown_handler])
