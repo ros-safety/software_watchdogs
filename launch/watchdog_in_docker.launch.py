@@ -40,6 +40,7 @@ def docker_stop(context, *args, **kwargs):
 # Restart docker container
 def docker_restart(context, *args, **kwargs):
     docker_stop(None)
+    time.sleep(1)
     docker_run(None)
 
 
