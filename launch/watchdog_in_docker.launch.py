@@ -41,16 +41,12 @@ def docker_restart(context, *args, **kwargs):
     docker_stop(None)
     docker_run(None)
 
+
 def generate_launch_description():
     set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
 
     # Launch Description
     ld = launch.LaunchDescription()
-
-    # docker_run_cmd = launch.actions.ExecuteProcess(
-    #     cmd=['docker', 'run', '-d', '--rm', '--name', 'talker', '-v', '/var/run/docker.sock:/var/run/docker.sock', '-v', '/usr/bin/docker:/usr/bin/docker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'],
-    #     #output='screen'
-    # )
 
     # Shutdown event
     #shutdown_event = EmitEvent( event = launch.events.Shutdown() )
