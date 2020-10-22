@@ -18,9 +18,14 @@ import launch
 from launch.actions import EmitEvent
 from launch.actions import LogInfo
 from launch.actions import RegisterEventHandler
+from launch.actions import OpaqueFunction
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch.event_handlers.on_shutdown import OnShutdown
+
+# Stop all group processes
+def group_stop(context, *args, **kwargs):
+    subprocess.call(['kill', '--INT', '--', '-1'])
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
@@ -45,9 +50,6 @@ def generate_launch_description():
             output='screen'
     )
 
-    # Shutdown event
-    shutdown_event = EmitEvent( event = launch.events.Shutdown() )
-
     # When Shutdown is requested (launch), clean up all child processes
     shutdown_handler = RegisterEventHandler(
         OnShutdown(
@@ -55,10 +57,9 @@ def generate_launch_description():
                 # Log
                 LogInfo( msg = "heartbeat_composition was asked to shutdown." ),
                 # Clean up
-                shutdown_event
+                OpaqueFunction(function=group_stop),
             ],
         )
     )
-
 
     return launch.LaunchDescription([container, shutdown_handler])
