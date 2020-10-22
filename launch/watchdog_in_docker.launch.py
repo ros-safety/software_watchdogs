@@ -84,10 +84,10 @@ def generate_launch_description():
             entities = [
                 # Log
                 LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
-                # Change state event (inactive -> active)
-                watchdog_activate_trans_event,
                 # Restart the monitored entity
                 OpaqueFunction(function=docker_restart),
+                # Change state event (inactive -> active)
+                watchdog_activate_trans_event,
             ],
         )
     )
