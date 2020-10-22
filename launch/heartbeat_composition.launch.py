@@ -14,6 +14,8 @@
 
 """Launch a talker and a heartbeat in a component container."""
 
+import subprocess
+
 import launch
 from launch.actions import EmitEvent
 from launch.actions import LogInfo
