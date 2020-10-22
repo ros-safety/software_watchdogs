@@ -41,7 +41,6 @@ def docker_stop(context, *args, **kwargs):
 def docker_restart(context, *args, **kwargs):
     docker_stop(None)
     docker_run(None)
-    time.sleep(3)
 
 
 def generate_launch_description():
