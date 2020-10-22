@@ -25,7 +25,7 @@ from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 from launch.event_handlers.on_shutdown import OnShutdown
 
-# Hack to cleanly exit all group processes with GID 1 (docker init process)
+# Hack to cleanly exit all roslaunch group processes (docker init is GID 1)
 def group_stop(context, *args, **kwargs):
     subprocess.call(['kill', '-INT', '--', '-1'])
 

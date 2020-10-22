@@ -51,9 +51,6 @@ def generate_launch_description():
     # Launch Description
     ld = launch.LaunchDescription()
 
-    # Shutdown event
-    #shutdown_event = EmitEvent( event = launch.events.Shutdown() )
-
     # Watchdog node
     watchdog_node = LifecycleNode(
         package='sw_watchdog',
