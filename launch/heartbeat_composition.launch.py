@@ -15,6 +15,7 @@
 """Launch a talker and a heartbeat in a component container."""
 
 import subprocess
+import os
 
 import launch
 from launch.actions import EmitEvent
@@ -27,14 +28,14 @@ from launch.event_handlers.on_shutdown import OnShutdown
 
 # Hack to cleanly exit all roslaunch group processes (docker init is GID 1)
 def group_stop(context, *args, **kwargs):
-    subprocess.call(['kill', '-INT', '--', '-1'])
+    subprocess.call(['kill', '-INT', '--', str(os.getpgid(os.getpid()))]
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
     """Generate launch description with multiple components."""
     container = ComposableNodeContainer(
             node_name='my_container',
-            node_namespace='',
+            node_namespace='my_namespace',
             package='rclcpp_components',
             node_executable='component_container',
             composable_node_descriptions=[
