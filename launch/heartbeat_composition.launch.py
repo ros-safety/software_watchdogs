@@ -35,7 +35,7 @@ def generate_launch_description():
     """Generate launch description with multiple components."""
     container = ComposableNodeContainer(
             node_name='my_container',
-            node_namespace='my_namespace',
+            node_namespace='',
             package='rclcpp_components',
             node_executable='component_container',
             composable_node_descriptions=[
