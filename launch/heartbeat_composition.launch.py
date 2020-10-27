@@ -28,8 +28,8 @@ from launch.event_handlers.on_shutdown import OnShutdown
 
 # Hack to cleanly exit all roslaunch group processes (docker init is GID 1)
 def group_stop(context, *args, **kwargs):
-    print(os.getpgid(os.getpid()))
-    subprocess.call(['kill', '-INT', '--', str(os.getpgid(os.getpid()))])
+    gid = os.getpgid(os.getpid())
+    subprocess.call(['kill', '-INT', '--', f"-{gid}"])
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
