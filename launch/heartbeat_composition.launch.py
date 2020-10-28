@@ -14,16 +14,29 @@
 
 """Launch a talker and a heartbeat in a component container."""
 
+import subprocess
+import os
+
 import launch
+from launch.actions import EmitEvent
+from launch.actions import LogInfo
+from launch.actions import RegisterEventHandler
+from launch.actions import OpaqueFunction
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from launch.event_handlers.on_shutdown import OnShutdown
+
+# Hack to cleanly exit all roslaunch group processes (docker init is GID 1)
+def group_stop(context, *args, **kwargs):
+    gid = os.getpgid(os.getpid())
+    subprocess.call(['kill', '-INT', '--', f"-{gid}"])
 
 # Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
     """Generate launch description with multiple components."""
     container = ComposableNodeContainer(
             node_name='my_container',
-            node_namespace='',
+            node_namespace='my_namespace',
             package='rclcpp_components',
             node_executable='component_container',
             composable_node_descriptions=[
@@ -38,7 +51,19 @@ def generate_launch_description():
                     parameters=[{'period': 200}],
                     extra_arguments=[{'use_intra_process_comms': True}]),
             ],
-            output='screen',
+            output='screen'
     )
 
-    return launch.LaunchDescription([container])
+    # When Shutdown is requested (launch), clean up all child processes
+    shutdown_handler = RegisterEventHandler(
+        OnShutdown(
+            on_shutdown = [
+                # Log
+                LogInfo( msg = "heartbeat_composition was asked to shutdown." ),
+                # Clean up
+                OpaqueFunction(function=group_stop),
+            ],
+        )
+    )
+
+    return launch.LaunchDescription([container, shutdown_handler])
