@@ -18,7 +18,7 @@
 #include "rcutils/cmdline_parser.h"
 #include "rclcpp_components/register_node_macro.hpp"
 
-#include "sw_watchdog/msg/heartbeat.hpp"
+#include "sw_watchdog_msgs/msg/heartbeat.hpp"
 #include "sw_watchdog/visibility_control.h"
 
 using namespace std::chrono_literals;
@@ -85,7 +85,7 @@ public:
             .deadline(heartbeat_period + LEASE_DELTA);
 
         // assert liveliness on the 'heartbeat' topic
-        publisher_ = this->create_publisher<sw_watchdog::msg::Heartbeat>("heartbeat", qos_profile);
+        publisher_ = this->create_publisher<sw_watchdog_msgs::msg::Heartbeat>("heartbeat", qos_profile);
         timer_ = this->create_wall_timer(heartbeat_period,
                                          std::bind(&SimpleHeartbeat::timer_callback, this));
     }
@@ -93,14 +93,14 @@ public:
 private:
     void timer_callback()
     {
-        auto message = sw_watchdog::msg::Heartbeat();
+        auto message = sw_watchdog_msgs::msg::Heartbeat();
         rclcpp::Time now = this->get_clock()->now();
         message.stamp = now;
         RCLCPP_INFO(this->get_logger(), "Publishing heartbeat, sent at [%f]", now.seconds());
         publisher_->publish(message);
     }
     rclcpp::TimerBase::SharedPtr timer_;
-    rclcpp::Publisher<sw_watchdog::msg::Heartbeat>::SharedPtr publisher_;
+    rclcpp::Publisher<sw_watchdog_msgs::msg::Heartbeat>::SharedPtr publisher_;
 };
 
 }  // namespace sw_watchdog
