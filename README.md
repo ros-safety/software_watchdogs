@@ -28,7 +28,7 @@ ros2 launch sw_watchdog watchdog_lifecycle.launch.py
 ```
 The first command composes a single process consisting of a ROS 2 `demo_nodes_cpp::Talker` with a `SimpleHeartbeat` set at *200ms*. The second command starts a `SimpleWatchdog` which grants a lease of *220ms* to the Heartbeat publisher. The watchdog will transition to the `Inactive` state as soon as the Heartbeat publisher violates the lease (*e.g.,* via CTRL+C in the first terminal). Since the watchdog is a lifecycle node, it can be re-activated to listen for a Heartbeat signal via:
 ```
-ros2 lifecycle set watchdog activate
+ros2 lifecycle set simple_watchdog activate
 ```
 
 To test the `WindowedWatchdog` replace the launch command in the second terminal with:
