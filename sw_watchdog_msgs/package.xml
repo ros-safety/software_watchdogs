@@ -1,22 +1,17 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sw_watchdog</name>
+  <name>sw_watchdog_msgs</name>
   <version>0.1.0</version>
-  <description>Library of software watchdogs implemented as ROS 2 lifecycle nodes</description>
+  <description>Messages to support library of software watchdogs</description>
   <maintainer email="philipp@mapless.ai">Philipp Robbel</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>lifecycle_msgs</build_depend>
-  <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>rosidl_default_generators</build_depend>
   <build_depend>std_msgs</build_depend>
 
-  <exec_depend>rclcpp_lifecycle</exec_depend>
-  <exec_depend>lifecycle_msgs</exec_depend>
-  <exec_depend>ros2run</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
