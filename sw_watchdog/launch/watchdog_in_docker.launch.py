@@ -54,9 +54,9 @@ def generate_launch_description():
     # Watchdog node
     watchdog_node = LifecycleNode(
         package='sw_watchdog',
-        node_executable='simple_watchdog',
-        node_namespace='',
-        node_name='simple_docker_watchdog',
+        executable='simple_watchdog',
+        namespace='',
+        name='simple_docker_watchdog',
         output='screen',
         arguments=['220', '--publish', '--activate']
         #arguments=['__log_level:=debug']
