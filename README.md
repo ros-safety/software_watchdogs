@@ -1,6 +1,7 @@
 # SW Watchdog
 
-![](https://github.com/ros-safety/software_watchdogs/workflows/CI/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://github.com/micro-ROS/system_modes/blob/master/LICENSE)
+[![Build status](https://github.com/ros-safety/software_watchdogs/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/ros-safety/software_watchdogs/actions)
 
 A library of (software) watchdogs based on DDS Quality of Service (QoS) policies and ROS 2 [lifecycle nodes](https://github.com/ros2/demos/blob/master/lifecycle/README.rst).
 
@@ -52,12 +53,10 @@ To use the `heartbeat_composition.launch.py` example, the `ros-*-demo-nodes-cpp`
 
 This code is built and tested under:
 
-* [ROS 2 Dashing Diademata](https://index.ros.org/doc/ros2/Installation/Dashing/) with [Ubuntu 18.04.4](http://releases.ubuntu.com/18.04/)  
-  _**Note:** Ouptut may be delayed / buffered in Dashing when using `ros2 launch` (see https://answers.ros.org/question/332829/no-stdout-logging-output-in-ros2-using-launch/)_
-* [ROS 2 Foxy Fitzroy](https://index.ros.org/doc/ros2/Installation/Foxy/) with [Ubuntu 20.04](http://releases.ubuntu.com/20.04/)
+* [ROS 2 Rolling Ridley](https://index.ros.org/doc/ros2/Installation/Rolling/) with [Ubuntu 20.04](http://releases.ubuntu.com/20.04/)
 
-The following DDS `rmw` [implementations](https://index.ros.org/doc/ros2/Concepts/DDS-and-ROS-middleware-implementations/) were tested in both environments (via the default Ubuntu packages that ship with the Dashing and Foxy releases):
-* [Fast DDS](https://www.eprosima.com/index.php/products-all/eprosima-fast-dds)  
+The following DDS `rmw` [implementations](https://index.ros.org/doc/ros2/Concepts/DDS-and-ROS-middleware-implementations/) were tested in both environments (via the default Ubuntu packages that ship with the Rolling releases):
+* [Fast DDS](https://www.eprosima.com/index.php/products-all/eprosima-fast-dds)
   _**Note:** In Dashing you must use Fast DDS, rather than the default Fast RTPS (which is a prior version of Fast DDS). Fast RTPS does not implement QoS._
 * [Connext DDS](https://www.rti.com/products/) v5.3.1
 * [Cyclone DDS](https://projects.eclipse.org/projects/iot.cyclonedds)
