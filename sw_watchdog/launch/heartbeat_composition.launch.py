@@ -31,23 +31,22 @@ def group_stop(context, *args, **kwargs):
     gid = os.getpgid(os.getpid())
     subprocess.call(['kill', '-INT', '--', f"-{gid}"])
 
-# Note: syntax has changed in foxy (removal of 'node_' prefixes)
 def generate_launch_description():
     """Generate launch description with multiple components."""
     container = ComposableNodeContainer(
-            node_name='my_container',
-            node_namespace='my_namespace',
+            name='my_container',
+            namespace='my_namespace',
             package='rclcpp_components',
-            node_executable='component_container',
+            executable='component_container',
             composable_node_descriptions=[
                 ComposableNode(
                     package='demo_nodes_cpp',
-                    node_plugin='demo_nodes_cpp::Talker',
-                    node_name='talker'),
+                    plugin='demo_nodes_cpp::Talker',
+                    name='talker'),
                 ComposableNode(
                     package='sw_watchdog',
-                    node_plugin='sw_watchdog::SimpleHeartbeat',
-                    node_name='heartbeat',
+                    plugin='sw_watchdog::SimpleHeartbeat',
+                    name='heartbeat',
                     parameters=[{'period': 200}],
                     extra_arguments=[{'use_intra_process_comms': True}]),
             ],

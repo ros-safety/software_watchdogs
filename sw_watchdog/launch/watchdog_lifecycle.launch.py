@@ -28,9 +28,9 @@ def generate_launch_description():
     set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
     watchdog_node = LifecycleNode(
         package='sw_watchdog',
-        node_executable='simple_watchdog',
-        node_namespace='',
-        node_name='simple_watchdog',
+        executable='simple_watchdog',
+        namespace='',
+        name='simple_watchdog',
         output='screen',
         arguments=['220', '--publish', '--activate']
         #arguments=['__log_level:=debug']
