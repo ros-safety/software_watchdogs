@@ -29,7 +29,7 @@ from launch_ros.descriptions import ComposableNode
 # Hack to cleanly exit all roslaunch group processes (docker init is GID 1)
 def group_stop(context, *args, **kwargs):
     gid = os.getpgid(os.getpid())
-    subprocess.call(['kill', '-INT', '--', f"-{gid}"])
+    subprocess.call(['kill', '-INT', '--', f'-{gid}'])
 
 
 def generate_launch_description():
@@ -59,7 +59,7 @@ def generate_launch_description():
         OnShutdown(
             on_shutdown=[
                 # Log
-                LogInfo(msg="heartbeat_composition was asked to shutdown."),
+                LogInfo(msg='heartbeat_composition was asked to shutdown.'),
                 # Clean up
                 OpaqueFunction(function=group_stop),
             ],

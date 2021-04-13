@@ -48,7 +48,7 @@ def docker_restart(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
+    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration('emulate_tty', 'True')
 
     # Launch Description
     ld = launch.LaunchDescription()
@@ -81,7 +81,7 @@ def generate_launch_description():
             goal_state='inactive',
             entities=[
                 # Log
-                LogInfo(msg="Watchdog transitioned to 'INACTIVE' state."),
+                LogInfo(msg='Watchdog transitioned to `INACTIVE` state.'),
                 # Restart the monitored entity
                 OpaqueFunction(function=docker_restart),
                 # Change state event (inactive -> active)
@@ -95,7 +95,7 @@ def generate_launch_description():
         OnShutdown(
             on_shutdown=[
                 # Log
-                LogInfo(msg="watchdog_in_docker was asked to shutdown."),
+                LogInfo(msg='watchdog_in_docker was asked to shutdown.'),
                 # Clean up docker
                 OpaqueFunction(function=docker_stop),
             ],

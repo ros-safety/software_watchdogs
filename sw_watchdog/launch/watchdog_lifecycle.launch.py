@@ -20,7 +20,7 @@ from launch_ros.event_handlers import OnStateTransition
 
 
 def generate_launch_description():
-    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
+    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration('emulate_tty', 'True')
     watchdog_node = LifecycleNode(
         package='sw_watchdog',
         executable='simple_watchdog',
@@ -35,7 +35,7 @@ def generate_launch_description():
         OnStateTransition(
             target_lifecycle_node=watchdog_node,
             goal_state='inactive',
-            entities=[LogInfo(msg="Watchdog transitioned to 'INACTIVE' state.")],
+            entities=[LogInfo(msg='Watchdog transitioned to `INACTIVE` state.')],
         )
     )
     return launch.LaunchDescription(
