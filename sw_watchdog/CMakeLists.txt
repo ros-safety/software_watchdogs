@@ -55,16 +55,10 @@ install(TARGETS
   RUNTIME DESTINATION bin
 )
 
-# if(BUILD_TESTING)
-#   find_package(ament_lint_auto REQUIRED)
-#   ament_lint_auto_find_test_dependencies()
-
-#   find_package(ros_testing REQUIRED)
-#   add_ros_test(
-#     test/test_watchdog.py
-#     TIMEOUT 60
-#   )
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 install(DIRECTORY
   launch

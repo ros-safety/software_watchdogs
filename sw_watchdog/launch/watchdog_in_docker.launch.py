@@ -16,27 +16,29 @@ import subprocess
 import time
 
 import launch
-from launch import LaunchDescription
 from launch.actions import EmitEvent
 from launch.actions import LogInfo
-from launch.actions import RegisterEventHandler
 from launch.actions import OpaqueFunction
-from launch_ros.actions import Node
-from launch_ros.actions import LifecycleNode
-from launch_ros.events.lifecycle import ChangeState
-from launch_ros.event_handlers import OnStateTransition
+from launch.actions import RegisterEventHandler
 from launch.event_handlers.on_shutdown import OnShutdown
+from launch_ros.actions import LifecycleNode
+from launch_ros.event_handlers import OnStateTransition
+from launch_ros.events.lifecycle import ChangeState
 
 import lifecycle_msgs.msg
 
+
 # Start monitored entity
 def docker_run(context, *args, **kwargs):
-    subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', 'sw_watchdogs:latest', 'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
+    subprocess.call(['docker', 'run', '-d', '--rm', '--name', 'talker', 'sw_watchdogs:latest',
+                     'ros2', 'launch', 'sw_watchdog', 'heartbeat_composition.launch.py'])
+
 
 # Stop docker container
 def docker_stop(context, *args, **kwargs):
     subprocess.call(['docker', 'kill', '--signal=SIGINT', 'talker'])
-    #subprocess.call(['docker', 'stop', 'talker'])
+    # subprocess.call(['docker', 'stop', 'talker'])
+
 
 # Restart docker container
 def docker_restart(context, *args, **kwargs):
@@ -59,14 +61,14 @@ def generate_launch_description():
         name='simple_docker_watchdog',
         output='screen',
         arguments=['220', '--publish', '--activate']
-        #arguments=['__log_level:=debug']
+        # arguments=['__log_level:=debug']
     )
 
     # Make the Watchdog node take the 'activate' transition
     watchdog_activate_trans_event = EmitEvent(
-        event = ChangeState(
-            lifecycle_node_matcher = launch.events.matches_action(watchdog_node),
-            transition_id = lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
+        event=ChangeState(
+            lifecycle_node_matcher=launch.events.matches_action(watchdog_node),
+            transition_id=lifecycle_msgs.msg.Transition.TRANSITION_ACTIVATE,
          )
     )
 
@@ -74,12 +76,12 @@ def generate_launch_description():
     # and restart monitored entity (via docker)
     watchdog_inactive_handler = RegisterEventHandler(
         OnStateTransition(
-            target_lifecycle_node = watchdog_node,
-            start_state = 'deactivating',
-            goal_state = 'inactive',
-            entities = [
+            target_lifecycle_node=watchdog_node,
+            start_state='deactivating',
+            goal_state='inactive',
+            entities=[
                 # Log
-                LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
+                LogInfo(msg="Watchdog transitioned to 'INACTIVE' state."),
                 # Restart the monitored entity
                 OpaqueFunction(function=docker_restart),
                 # Change state event (inactive -> active)
@@ -91,9 +93,9 @@ def generate_launch_description():
     # When Shutdown is requested, clean up docker
     shutdown_handler = RegisterEventHandler(
         OnShutdown(
-            on_shutdown = [
+            on_shutdown=[
                 # Log
-                LogInfo( msg = "watchdog_in_docker was asked to shutdown." ),
+                LogInfo(msg="watchdog_in_docker was asked to shutdown."),
                 # Clean up docker
                 OpaqueFunction(function=docker_stop),
             ],
@@ -102,10 +104,10 @@ def generate_launch_description():
 
     # Add the actions to the launch description.
     # The order they are added reflects the order in which they will be executed
-    ld.add_action( set_tty_launch_config_action )
-    ld.add_action( OpaqueFunction(function=docker_run) )
-    ld.add_action( watchdog_node )
-    ld.add_action( watchdog_inactive_handler )
-    ld.add_action( shutdown_handler )
+    ld.add_action(set_tty_launch_config_action)
+    ld.add_action(OpaqueFunction(function=docker_run))
+    ld.add_action(watchdog_node)
+    ld.add_action(watchdog_inactive_handler)
+    ld.add_action(shutdown_handler)
 
     return ld
