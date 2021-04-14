@@ -59,6 +59,21 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+
+  # launch tests
+  find_package(launch_testing_ament_cmake REQUIRED)
+  file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/test/test_watchdog_shutdown_heartbeat.py" SHUTDOWN_SCRIPT)
+  file(TO_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/test/test_watchdog_expected_output" EXPECTED_OUTPUT)
+  configure_file(
+      "test/test_watchdog.launch.py.in"
+      "test/test_watchdog.launch.py"
+      @ONLY)
+  add_launch_test(
+    "${CMAKE_CURRENT_BINARY_DIR}/test/test_watchdog.launch.py"
+    TARGET "test_watchdog"
+    TIMEOUT 30
+    ENV
+  )
 endif()
 
 install(DIRECTORY
