@@ -17,38 +17,39 @@
 #define SW_WATCHDOG__VISIBILITY_CONTROL_H_
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
 
 #if defined _WIN32 || defined __CYGWIN__
-#ifdef __GNUC__
-#define SW_WATCHDOG_EXPORT __attribute__((dllexport))
-#define SW_WATCHDOG_IMPORT __attribute__((dllimport))
+  #ifdef __GNUC__
+    #define SW_WATCHDOG_EXPORT __attribute__ ((dllexport))
+    #define SW_WATCHDOG_IMPORT __attribute__ ((dllimport))
+  #else
+    #define SW_WATCHDOG_EXPORT __declspec(dllexport)
+    #define SW_WATCHDOG_IMPORT __declspec(dllimport)
+  #endif
+  #ifdef SW_WATCHDOG_BUILDING_DLL
+    #define SW_WATCHDOG_PUBLIC SW_WATCHDOG_EXPORT
+  #else
+    #define SW_WATCHDOG_PUBLIC SW_WATCHDOG_IMPORT
+  #endif
+  #define SW_WATCHDOG_PUBLIC_TYPE SW_WATCHDOG_PUBLIC
+  #define SW_WATCHDOG_LOCAL
 #else
-#define SW_WATCHDOG_EXPORT __declspec(dllexport)
-#define SW_WATCHDOG_IMPORT __declspec(dllimport)
-#endif
-#ifdef SW_WATCHDOG_BUILDING_DLL
-#define SW_WATCHDOG_PUBLIC SW_WATCHDOG_EXPORT
-#else
-#define SW_WATCHDOG_PUBLIC SW_WATCHDOG_IMPORT
-#endif
-#define SW_WATCHDOG_PUBLIC_TYPE SW_WATCHDOG_PUBLIC
-#define SW_WATCHDOG_LOCAL
-#else
-#define SW_WATCHDOG_EXPORT __attribute__((visibility("default")))
-#define SW_WATCHDOG_IMPORT
-#if __GNUC__ >= 4
-#define SW_WATCHDOG_PUBLIC __attribute__((visibility("default")))
-#define SW_WATCHDOG_LOCAL __attribute__((visibility("hidden")))
-#else
-#define SW_WATCHDOG_PUBLIC
-#define SW_WATCHDOG_LOCAL
-#endif
-#define SW_WATCHDOG_PUBLIC_TYPE
+  #define SW_WATCHDOG_EXPORT __attribute__ ((visibility("default")))
+  #define SW_WATCHDOG_IMPORT
+  #if __GNUC__ >= 4
+    #define SW_WATCHDOG_PUBLIC __attribute__ ((visibility("default")))
+    #define SW_WATCHDOG_LOCAL  __attribute__ ((visibility("hidden")))
+  #else
+    #define SW_WATCHDOG_PUBLIC
+    #define SW_WATCHDOG_LOCAL
+  #endif
+  #define SW_WATCHDOG_PUBLIC_TYPE
 #endif
 
 #ifdef __cplusplus
