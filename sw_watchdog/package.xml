@@ -6,6 +6,8 @@
   <description>Library of software watchdogs implemented as ROS 2 lifecycle nodes</description>
   <maintainer email="philipp@mapless.ai">Philipp Robbel</maintainer>
   <license>Apache License 2.0</license>
+  <author email="philipp@mapless.ai">Philipp Robbel</author>
+  <author email="arne.nordmann@de.bosch.com">Arne Nordmann</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -14,14 +16,19 @@
   <build_depend>sw_watchdog_msgs</build_depend>
 
   <exec_depend>rclcpp_lifecycle</exec_depend>
+  <exec_depend>launch</exec_depend>
   <exec_depend>lifecycle_msgs</exec_depend>
   <exec_depend>ros2run</exec_depend>
   <exec_depend>sw_watchdog_msgs</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
-  <test_depend>ros_testing</test_depend>
-  <!--<exec_depend>rosidl_default_runtime</exec_depend>-->
+  <test_depend>launch</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>launch_testing</test_depend>
+  <test_depend>lifecycle_msgs</test_depend>
+  <test_depend>rclpy</test_depend>
+  <test_depend>ros2component</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -13,19 +13,14 @@
 # limitations under the License.
 
 import launch
-from launch import LaunchDescription
-from launch.actions import EmitEvent
 from launch.actions import LogInfo
 from launch.actions import RegisterEventHandler
-from launch_ros.actions import Node
 from launch_ros.actions import LifecycleNode
-from launch_ros.events.lifecycle import ChangeState
 from launch_ros.event_handlers import OnStateTransition
 
-import lifecycle_msgs.msg
 
 def generate_launch_description():
-    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration("emulate_tty", "True")
+    set_tty_launch_config_action = launch.actions.SetLaunchConfiguration('emulate_tty', 'True')
     watchdog_node = LifecycleNode(
         package='sw_watchdog',
         executable='windowed_watchdog',
@@ -33,17 +28,15 @@ def generate_launch_description():
         name='windowed_watchdog',
         output='screen',
         arguments=['220', '3', '--publish', '--activate']
-        #arguments=['__log_level:=debug']
+        # arguments=['__log_level:=debug']
     )
     # When the watchdog reaches the 'inactive' state, log a message
     watchdog_inactive_handler = RegisterEventHandler(
         OnStateTransition(
-            target_lifecycle_node = watchdog_node,
-            goal_state = 'inactive',
-            entities = [
-                # Log
-                LogInfo( msg = "Watchdog transitioned to 'INACTIVE' state." ),
-            ],
+            target_lifecycle_node=watchdog_node,
+            goal_state='inactive',
+            entities=[LogInfo(msg='Watchdog transitioned to `INACTIVE` state.')],
         )
     )
-    return launch.LaunchDescription([set_tty_launch_config_action, watchdog_node, watchdog_inactive_handler])
+    return launch.LaunchDescription(
+        [set_tty_launch_config_action, watchdog_node, watchdog_inactive_handler])

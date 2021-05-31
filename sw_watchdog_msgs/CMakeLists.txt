@@ -21,16 +21,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   LIBRARY_NAME ${PROJECT_NAME}
 )
 
-# if(BUILD_TESTING)
-#   find_package(ament_lint_auto REQUIRED)
-#   ament_lint_auto_find_test_dependencies()
-
-#   find_package(ros_testing REQUIRED)
-#   add_ros_test(
-#     test/test_watchdog.py
-#     TIMEOUT 60
-#   )
-# endif()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_export_dependencies(rosidl_default_runtime)
 ament_package()
