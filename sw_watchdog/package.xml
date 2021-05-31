@@ -6,6 +6,7 @@
   <description>Library of software watchdogs implemented as ROS 2 lifecycle nodes</description>
   <maintainer email="philipp@mapless.ai">Philipp Robbel</maintainer>
   <license>Apache License 2.0</license>
+  <author email="philipp@mapless.ai">Philipp Robbel</author>
   <author email="arne.nordmann@de.bosch.com">Arne Nordmann</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
