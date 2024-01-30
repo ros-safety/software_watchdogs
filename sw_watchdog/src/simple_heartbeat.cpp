@@ -88,6 +88,7 @@ public:
         publisher_ = this->create_publisher<sw_watchdog_msgs::msg::Heartbeat>("heartbeat", qos_profile);
         timer_ = this->create_wall_timer(heartbeat_period,
                                          std::bind(&SimpleHeartbeat::timer_callback, this));
+        RCLCPP_INFO(get_logger(), "Watchdog heartbeat initialized");
     }
 
 private:
@@ -96,7 +97,7 @@ private:
         auto message = sw_watchdog_msgs::msg::Heartbeat();
         rclcpp::Time now = this->get_clock()->now();
         message.stamp = now;
-        RCLCPP_INFO(this->get_logger(), "Publishing heartbeat, sent at [%f]", now.seconds());
+        RCLCPP_DEBUG(this->get_logger(), "Publishing heartbeat, sent at [%f]", now.seconds());
         publisher_->publish(message);
     }
     rclcpp::TimerBase::SharedPtr timer_;
