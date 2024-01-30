@@ -55,7 +55,7 @@ public:
         : Node("simple_heartbeat", options.start_parameter_event_publisher(false).
                                            start_parameter_services(false))
     {
-        declare_parameter("period");
+        declare_parameter("period", 100);
 
         const std::vector<std::string>& args = this->get_node_options().arguments();
         // Parse node arguments
